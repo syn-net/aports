@@ -1,70 +1,46 @@
+# Contributor: JEFFREY CARPENTER <i8degrees@gmail.com>
+#
+# NOTE(jeff): This file is derived from the apports tree [1].
+# 1. https://git.alpinelinux.org/aports/tree/community/pdns-recursor/APKBUILD?h=3.18-stable
+
+_pkgver=5.0.0-rc1
 # Maintainer: Peter van Dijk <peter.van.dijk@powerdns.com>
 _pkgname=pdns-recursor # upstream package name
 pkgname=pdns-recursor
-pkgver=4.8.4
-pkgrel=1
+pkgver=5.0.0
+pkgrel=0
 pkgdesc="PowerDNS Recursive Server"
 url="https://www.powerdns.com/"
 arch="all !s390x" # broken context
 license="GPL-2.0-only WITH OpenSSL-Exception"
-makedepends="autoconf automake libtool boost-dev openssl-dev>3 libsodium-dev lua5.3-dev
-	net-snmp-dev curl curl-dev"
+makedepends="autoconf automake libtool boost-dev openssl-dev>3 libsodium-dev net-snmp-dev curl curl-dev cargo luajit-dev make openssl-dev"
+depends="boost1.82-context boost1.82-filesystem busybox-binsh libcrypto3 libcurl libgcc libsodium libssl3 libstdc++ lua5.3-libs musl net-snmp-agent-libs net-snmp-libs"
 install="$pkgname.pre-install"
 subpackages="$pkgname-doc $pkgname-openrc"
 pkgusers="recursor"
 pkggroups="recursor"
-source="https://downloads.powerdns.com/releases/$_pkgname-${pkgver//_/-}.tar.bz2
+source="https://downloads.powerdns.com/releases/${_pkgname}-${_pkgver}.tar.bz2
 	$_pkgname.initd
 	recursor.conf
 	"
 
-builddir="$srcdir/$_pkgname-${pkgver//_/-}"
+builddir="${srcdir}/${_pkgname}-${_pkgver}"
 
 [ "$CARCH" = "riscv64" ] && options="$options textrels"
 
-# secfixes:
-#   4.8.1-r0:
-#     - CVE-2023-22617
-#   4.7.2-r0:
-#     - CVE-2022-37428
-#   4.6.1-r0:
-#     - CVE-2022-27227
-#   4.3.5-r0:
-#     - CVE-2020-25829
-#   4.3.2-r0:
-#     - CVE-2020-14196
-#   4.3.1-r0:
-#     - CVE-2020-10995
-#     - CVE-2020-12244
-#   4.1.9-r0:
-#     - CVE-2019-3806
-#     - CVE-2019-3807
-#   4.1.8-r0:
-#     - CVE-2018-16855
-#   4.1.7-r0:
-#     - CVE-2018-10851
-#     - CVE-2018-14644
-#     - CVE-2018-14626
-#   4.1.1-r0:
-#     - CVE-2018-1000003
-#   4.0.7-r0:
-#     - CVE-2017-15090
-#     - CVE-2017-15092
-#     - CVE-2017-15093
-#     - CVE-2017-15094
-
 build() {
-	./configure --prefix=/usr \
-		--sysconfdir=/etc/pdns \
-		--mandir=/usr/share/man \
-		--infodir=/usr/share/info \
-		--localstatedir=/var \
-		--libdir=/usr/lib/pdns \
-		--enable-dns-over-tls \
-		--enable-unit-tests
-	make
+  
+  #--enable-unit-tests \
+  ./configure --prefix=/usr \
+  	--sysconfdir=/etc/pdns \
+	--mandir=/usr/share/man \
+	--infodir=/usr/share/info \
+	--localstatedir=/var \
+	--libdir=/usr/lib/pdns \
+	--enable-dns-over-tls
+  	#--enable-unit-tests
+  make -j6
 }
-
 check() {
 	make check
 }
@@ -80,7 +56,7 @@ package() {
 }
 
 sha512sums="
-1cfdf94bc10d01ebfae00780304f0d46b3388d824158195e1db2b04a08143cc8f36c4861a05ac8cbc05948349aafe1c9e822a27b15b470ef89a81e8bd584a5f2  pdns-recursor-4.8.4.tar.bz2
+334eb1fcdaca6d822f3f6ba5b497a2cf9985220f34a7db7fbd7bc8a2efef60e584d4eaa08107809d54fd2471bfa5c16ad7e2d03043180a59c7eb6eab51ab8cbd  pdns-recursor-5.0.0-rc1.tar.bz2
 71f7be51d3a9a78f22f3946e95534d4f5b37b3bcbd1891ad3a17095be545fdb0eaf239d58c9f40ccc642542150c0b35ed025bf69acabfa779c0ab10c67a5e796  pdns-recursor.initd
 abda278d29b21e9635fb154c8685e5d346f47889498f075a8dd2e486f8ea4dcc2ccd20f4245783e4d55534fed88c49825b22fd3d1c55d8645522ce45cc53d661  recursor.conf
 "
